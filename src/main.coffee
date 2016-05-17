@@ -48,7 +48,7 @@ class Ball
     ctx.fillStyle = "#0095DD"
     ctx.fill()
     ctx.closePath()
-  updatePosition: (cv, paddle) ->
+  updatePosition: (cv, paddle, live) ->
     @dx = -@dx if @x + @dx > cv.width - @radius or @x + @dx < @radius
     if @y + @dy < @radius
       @dy = -@dy
@@ -56,8 +56,16 @@ class Ball
       if @x > paddle.x and @x < paddle.x + paddle.width
         @dy = -@dy
       else
-        alert("GAME OVER")
-        document.location.reload()
+        live.lives--
+        if live.lives is 0
+          alert("GAME OVER")
+          document.location.reload()
+        else
+          @x = ballPosX
+          @y = ballPosY
+          @dx = dx
+          @dy = dy
+          paddle.x = paddleX
 
     @x += @dx
     @y += @dy
@@ -83,11 +91,18 @@ class Score
   draw: () ->
     ctx.font = "16px Arial"
     ctx.fillStyle = "#0095DD"
-    ctx.fillText("Score: "+@score, 8, 20)
+    ctx.fillText("Score: #{@score}", 8, 20)
   checkWinCondition: (brickNums) ->
     if @score is brickNums
       alert("YOU WIN, CONGRATULATIONS!")
       document.location.reload()
+
+class Live
+  constructor: (@lives) ->
+  draw: (canvas) ->
+    ctx.font = "16px Arial"
+    ctx.fillStyle = "#0095DD"
+    ctx.fillText("Lives: #{@lives}", canvas.width - 65, 20)
 
 
 cv = new Canvas(canvas.width, canvas.height)
@@ -102,10 +117,11 @@ for c in [0...brickColumnCount]
     bricks[c][r] = new Brick(brickX, brickY, brickWidth, brickHeight)
 
 score = new Score(0)
+live = new Live(3)
 
 draw = () ->
   ctx.clearRect(0, 0, canvas.width, canvas.height)
-  ball.updatePosition(cv, paddle)
+  ball.updatePosition(cv, paddle, live)
   ball.draw()
   paddle.updatePosition(rightPressed, leftPressed, cv)
   paddle.draw()
@@ -119,6 +135,7 @@ draw = () ->
       bricks[c][r].collisionDetect(ball, score)
 
   score.draw()
+  live.draw(cv)
   score.checkWinCondition(brickRowCount * brickColumnCount)
   nil
 
