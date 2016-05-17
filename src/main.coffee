@@ -1,8 +1,8 @@
 canvas = document.getElementById("myCanvas")
 ctx = canvas.getContext("2d")
 
-x = canvas.width/2
-y = canvas.height-30
+ballPosX = canvas.width/2
+ballPosY = canvas.height-30
 dx = 2
 dy = -2
 ballRadius = 10
@@ -14,10 +14,30 @@ paddleX = (canvas.width-paddleWidth)/2
 rightPressed = false
 leftPressed = false
 
+brickRowCount = 3
+brickColumnCount = 5
+brickWidth = 75
+brickHeight = 20
+brickPadding = 10
+brickOffsetTop = 30
+brickOffsetLeft = 30
+
 class Canvas 
   constructor: (@width, @height) ->
 
-cv = new Canvas(canvas.width, canvas.height)
+class Paddle
+  constructor: (@x, @y, @width, @height) ->
+  draw: () ->
+    ctx.beginPath()
+    ctx.rect(@x, @y, @width, @height)
+    ctx.fillStyle = "#0095DD"
+    ctx.fill()
+    ctx.closePath()
+  updatePosition: (rightPressed, leftPressed, cv) ->
+    if rightPressed and @x < cv.width-@width
+      @x += 7
+    else if leftPressed and @x > 0
+      @x -= 7
 
 class Ball
   constructor: (@x, @y, @radius, @dx, @dy) ->
@@ -28,12 +48,12 @@ class Ball
     ctx.fillStyle = "#0095DD"
     ctx.fill()
     ctx.closePath()
-  updatePosition: (cv) ->
+  updatePosition: (cv, paddle) ->
     dx = -dx if @x + dx > cv.width - @radius or @x + dx < @radius
     if @y + dy < @radius
       dy = -dy
     else if @y + dy > cv.height - @radius
-      if @x > paddleX and @x < paddleX + paddleWidth
+      if @x > paddle.x and @x < paddle.x + paddle.width
         dy = -dy
       else
         alert("GAME OVER")
@@ -42,47 +62,36 @@ class Ball
     @x += dx
     @y += dy
 
-ball = new Ball(cv.width/2, cv.height-30, 10, dx, dy)
-###
-drawBall = () ->
-  ctx.beginPath()
-  ctx.arc(x, y, ballRadius, 0, Math.PI*2)
-  ctx.fillStyle = "#0095DD"
-  ctx.fill()
-  ctx.closePath()
-###
+class Brick
+  constructor: (@x, @y, @width, @height) ->
+  draw: () ->
+    ctx.beginPath();
+    ctx.rect(@x, @y, @width, @height)
+    ctx.fillStyle = "#0095DD"
+    ctx.fill()
+    ctx.closePath()
 
-drawPaddle = () ->
-  ctx.beginPath()
-  ctx.rect(paddleX, canvas.height-paddleHeight, paddleWidth, paddleHeight)
-  ctx.fillStyle = "#0095DD"
-  ctx.fill()
-  ctx.closePath()  
+cv = new Canvas(canvas.width, canvas.height)
+ball = new Ball(ballPosX, ballPosY, ballRadius, dx, dy)
+paddle = new Paddle(paddleX, cv.height-paddleHeight, paddleWidth, paddleHeight)
+bricks = []
+for c in [0...brickColumnCount]
+  bricks[c] = []
+  for r in [0...brickRowCount]
+    brickX = (c*(brickWidth + brickPadding)) + brickOffsetLeft
+    brickY = (r*(brickHeight + brickPadding)) + brickOffsetTop
+    bricks[c][r] = new Brick(brickX, brickY, brickWidth, brickHeight)
 
 draw = () ->
   ctx.clearRect(0, 0, canvas.width, canvas.height)
-  ball.updatePosition(cv)
+  ball.updatePosition(cv, paddle)
   ball.draw()
-  drawPaddle()
-  ###
-  dx = -dx if x + dx > canvas.width - ballRadius or x + dx < ballRadius
-  
-  if y + dy < ballRadius
-    dy = -dy
-  else if y + dy > canvas.height - ballRadius
-    if x > paddleX and x < paddleX + paddleWidth
-      dy = -dy
-    else
-      alert("GAME OVER")
-      document.location.reload()
-  
-  x += dx
-  y += dy
-###
-  if rightPressed and paddleX < canvas.width-paddleWidth
-    paddleX += 7
-  else if leftPressed and paddleX > 0
-    paddleX -= 7
+  paddle.updatePosition(rightPressed, leftPressed, cv)
+  paddle.draw()
+  # draw bricks
+  for c in [0...brickColumnCount]
+    for r in [0...brickRowCount]
+      bricks[c][r].draw()
 
 keyDownHandler = (e) ->
   if e.keyCode == 39
