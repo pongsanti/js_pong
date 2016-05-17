@@ -49,27 +49,34 @@ class Ball
     ctx.fill()
     ctx.closePath()
   updatePosition: (cv, paddle) ->
-    dx = -dx if @x + dx > cv.width - @radius or @x + dx < @radius
-    if @y + dy < @radius
-      dy = -dy
-    else if @y + dy > cv.height - @radius
+    @dx = -@dx if @x + @dx > cv.width - @radius or @x + @dx < @radius
+    if @y + @dy < @radius
+      @dy = -@dy
+    else if @y + @dy > cv.height - @radius
       if @x > paddle.x and @x < paddle.x + paddle.width
-        dy = -dy
+        @dy = -@dy
       else
         alert("GAME OVER")
         document.location.reload()
 
-    @x += dx
-    @y += dy
+    @x += @dx
+    @y += @dy
 
 class Brick
   constructor: (@x, @y, @width, @height) ->
+  status: 1
   draw: () ->
     ctx.beginPath();
     ctx.rect(@x, @y, @width, @height)
     ctx.fillStyle = "#0095DD"
     ctx.fill()
     ctx.closePath()
+  collisionDetect: (ball) ->
+    if @status == 1
+      if ball.x > @x and ball.x < @x + @width and ball.y > @y and ball.y < @y + @height
+        ball.dy = -ball.dy
+        @status = 0
+      
 
 cv = new Canvas(canvas.width, canvas.height)
 ball = new Ball(ballPosX, ballPosY, ballRadius, dx, dy)
@@ -90,8 +97,14 @@ draw = () ->
   paddle.draw()
   # draw bricks
   for c in [0...brickColumnCount]
+    for r in [0...brickRowCount] 
+      bricks[c][r].draw() if bricks[c][r].status == 1
+
+  for c in [0...brickColumnCount]
     for r in [0...brickRowCount]
-      bricks[c][r].draw()
+      bricks[c][r].collisionDetect(ball)
+  nil
+
 
 keyDownHandler = (e) ->
   if e.keyCode == 39
