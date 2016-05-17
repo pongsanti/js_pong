@@ -84,6 +84,11 @@ class Score
     ctx.font = "16px Arial"
     ctx.fillStyle = "#0095DD"
     ctx.fillText("Score: "+@score, 8, 20)
+  checkWinCondition: (brickNums) ->
+    if @score is brickNums
+      alert("YOU WIN, CONGRATULATIONS!")
+      document.location.reload()
+
 
 cv = new Canvas(canvas.width, canvas.height)
 ball = new Ball(ballPosX, ballPosY, ballRadius, dx, dy)
@@ -114,6 +119,7 @@ draw = () ->
       bricks[c][r].collisionDetect(ball, score)
 
   score.draw()
+  score.checkWinCondition(brickRowCount * brickColumnCount)
   nil
 
 
