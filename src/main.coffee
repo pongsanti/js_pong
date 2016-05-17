@@ -137,6 +137,8 @@ draw = () ->
   score.draw()
   live.draw(cv)
   score.checkWinCondition(brickRowCount * brickColumnCount)
+
+  requestAnimationFrame(draw)
   nil
 
 
@@ -160,4 +162,4 @@ mouseMoveHandler = (e) ->
 document.addEventListener("keydown", keyDownHandler, false)
 document.addEventListener("keyup", keyUpHandler, false)
 document.addEventListener("mousemove", mouseMoveHandler, false);
-setInterval(draw, 10)
+draw()
