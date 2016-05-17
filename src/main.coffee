@@ -135,6 +135,12 @@ keyUpHandler = (e) ->
   else if e.keyCode == 37
     leftPressed = false
 
+mouseMoveHandler = (e) ->
+  relativeX = e.clientX - canvas.offsetLeft;
+  if relativeX > 0 and relativeX < canvas.width
+    paddle.x = relativeX - paddle.width/2
+
 document.addEventListener("keydown", keyDownHandler, false)
 document.addEventListener("keyup", keyUpHandler, false)
+document.addEventListener("mousemove", mouseMoveHandler, false);
 setInterval(draw, 10)
