@@ -71,12 +71,19 @@ class Brick
     ctx.fillStyle = "#0095DD"
     ctx.fill()
     ctx.closePath()
-  collisionDetect: (ball) ->
+  collisionDetect: (ball, score) ->
     if @status == 1
       if ball.x > @x and ball.x < @x + @width and ball.y > @y and ball.y < @y + @height
         ball.dy = -ball.dy
         @status = 0
-      
+        score.score++
+
+class Score
+  constructor: (@score) ->
+  draw: () ->
+    ctx.font = "16px Arial"
+    ctx.fillStyle = "#0095DD"
+    ctx.fillText("Score: "+@score, 8, 20)
 
 cv = new Canvas(canvas.width, canvas.height)
 ball = new Ball(ballPosX, ballPosY, ballRadius, dx, dy)
@@ -88,6 +95,8 @@ for c in [0...brickColumnCount]
     brickX = (c*(brickWidth + brickPadding)) + brickOffsetLeft
     brickY = (r*(brickHeight + brickPadding)) + brickOffsetTop
     bricks[c][r] = new Brick(brickX, brickY, brickWidth, brickHeight)
+
+score = new Score(0)
 
 draw = () ->
   ctx.clearRect(0, 0, canvas.width, canvas.height)
@@ -102,7 +111,9 @@ draw = () ->
 
   for c in [0...brickColumnCount]
     for r in [0...brickRowCount]
-      bricks[c][r].collisionDetect(ball)
+      bricks[c][r].collisionDetect(ball, score)
+
+  score.draw()
   nil
 
 
