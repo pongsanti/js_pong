@@ -25,6 +25,12 @@ create = () ->
   ball.body.collideWorldBounds = true
   ball.body.bounce.set(1)
   ball.body.velocity.set(150, -150)
+  game.physics.arcade.checkCollision.down = false
+  ball.checkWorldBounds = true
+  ball.events.onOutOfBounds.add(()->
+    alert('Game over!')
+    location.reload()
+  , this)
 
   game.physics.enable(paddle, Phaser.Physics.ARCADE)
   paddle.body.immovable = true
