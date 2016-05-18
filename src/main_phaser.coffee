@@ -8,10 +8,12 @@ preload = () ->
   game.load.image('ball', 'img/ball.png')
 
 create = () ->
+  game.physics.startSystem(Phaser.ARCADE)
   ball = game.add.sprite(50, 50, 'ball')
+  game.physics.enable(ball, Phaser.Physics.ARCADE)
+  ball.body.velocity.set(150, 150)
+
 update = () -> 
-  ball.x += 1
-  ball.y += 1
 
 game = new Phaser.Game(480, 320, Phaser.AUTO, null,
   preload: preload
